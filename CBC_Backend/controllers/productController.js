@@ -52,3 +52,49 @@ export async function deleteProduct(req,res) {
         return res.status(500).json({message:"failed to delete Product"})
     }
 }
+
+export async function updateProduct(req,res){
+    if (! isAdmin(req)) {
+        return res.status(403).json({message:"Access denied"})
+    }
+
+    const data = req.body;
+    const productId = req.params.productId;
+    data.productId = productId;
+
+    try{
+        await Product.updateOne({
+            productId:productId
+        },data);
+        res.json({message:"Product updated Successfully"})
+
+    }catch(error){
+        console.log("error:",error);
+        return res.status(500).json({message:"failed to update Product"})
+    }
+}
+
+export async function getProductInfo(req,res) {
+    try{
+        const productId = req.params.productId;
+        const product = await Product.findOne({productId:productId})
+        if (product==null) {
+           return res.status(404).json({message:"Product not found"}) 
+        }
+        if (isAdmin(req)) {
+            res.json(product);
+
+        }else{
+            if(product.isAvailable){
+                res.json(product)
+            }else{
+                res.status(404).json({message:"Product is not available"})
+            }
+                
+            
+         }
+    }catch(error){
+        console.log("error:",error);
+        return res.status(500).json({message:"failed to display the Product"})
+    }
+}
