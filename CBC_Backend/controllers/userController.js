@@ -1,6 +1,8 @@
 import User from "../models/user.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 
 export function createUser(req, res) {
   const passwordHash = bcrypt.hashSync(req.body.password, 10);
@@ -44,7 +46,7 @@ export function loginUser(req, res) {
             isBlocked: user.isBlocked,
             isEmailVerified: user.isEmailVerified,
             image: user.image
-          },"cbc-6503")
+          },process.env.JWT_SECRET)
         res.json({
           token:token,
           message: "login successful",
